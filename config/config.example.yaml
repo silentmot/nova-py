@@ -1,0 +1,30 @@
+# Optional YAML configuration layered on top of environment variables.
+# Loaded by src/nova/config.py if CONFIG_FILE env var points at it.
+
+bot:
+  # Text-command prefix (only used for owner-only commands).
+  prefix: "!"
+  # Human-facing application name shown in embeds/status messages.
+  name: "Nova"
+
+openclaw:
+  agent_id: main
+  dm_policy: pairing
+  group_policy: allowlist
+  history_limit: 20
+  reply_mode: batched
+  streaming: off
+
+music:
+  ffmpeg_path: ffmpeg
+  max_queue: 100
+  default_volume: 0.5
+  # Extra args passed to FFmpeg for each source.
+  ffmpeg_before_options: "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"
+  ffmpeg_options: "-vn"
+
+logging:
+  level: INFO
+  # `rich` pretty-prints to stderr; set to false for plain text (better
+  # for container log aggregation).
+  rich: true

@@ -1,0 +1,107 @@
+# =====================================================================
+# OpenClaw — Discord Channel manifest for Nova.
+#
+# This file is consumed by the OpenClaw gateway (see
+# https://docs.openclaw.ai/channels/discord). The gateway owns the
+# persistent websocket connection to Discord's API; Nova's code in
+# src/nova/ defines the slash-command surface the agent can use.
+#
+# Values of the form ${VAR} are substituted from the process
+# environment at gateway startup. Replace the sample IDs with your own
+# before deploying.
+# =====================================================================
+
+channels:
+  discord:
+    enabled: true
+
+    # --- Authentication ----------------------------------------------
+    # Bot token is resolved from DISCORD_BOT_TOKEN. Never commit it.
+    token: ${DISCORD_BOT_TOKEN}
+
+    # Optional proxy for the gateway websocket (per-deployment).
+    proxy: ${HTTPS_PROXY}
+
+    # Allow the gateway to receive messages from other bots.
+    # Keep disabled unless you specifically need bot-to-bot relay.
+    allowBots: false
+
+    # --- Intents -----------------------------------------------------
+    intents:
+      messageContent: true
+      guildMembers: true
+      guildScheduledEvents: true
+      presence: false
+      voiceStates: true
+
+    # --- DM policy ---------------------------------------------------
+    dm:
+      dmPolicy: ${OPENCLAW_DM_POLICY:-pairing}
+      # Used when dmPolicy is "allowlist".
+      allowFrom: []
+      # Used when dmPolicy is "open".
+      # allowFrom: "*"
+
+    # --- Guild policy ------------------------------------------------
+    guilds:
+      groupPolicy: ${OPENCLAW_GROUP_POLICY:-allowlist}
+      allowlist:
+        guilds: []
+        users:  []
+        roles:  []
+      # Require explicit @mentions in guild channels by default.
+      mentionRequired: true
+
+    # --- History & replies ------------------------------------------
+    historyLimit: ${OPENCLAW_HISTORY_LIMIT:-20}
+    replyToMode: ${OPENCLAW_REPLY_MODE:-batched}    # off | first | all | batched
+    streaming:   ${OPENCLAW_STREAMING:-off}         # off | partial | block | progress
+
+    # --- Action gates ------------------------------------------------
+    # See OpenClaw docs: "Tools and Action Gates". Unlisted groups
+    # default to their documented defaults.
+    actionGates:
+      reactions:  true
+      messages:   true
+      threads:    true
+      pins:       true
+      polls:      true
+      search:     true
+      memberInfo: true
+      roleInfo:   true
+      channelInfo: true
+      voiceStatus: true
+      events:     true
+      # Sensitive groups — off by default.
+      roles:      false
+      moderation: false
+      presence:   false
+
+    # --- Native commands --------------------------------------------
+    commands:
+      native: true
+      slashCommand:
+        # Nova registers its own /music, /event, /pin, /webhook trees
+        # through discord.py's CommandTree on top of these.
+        enabled: true
+
+    # --- Presence ----------------------------------------------------
+    presence:
+      status: online
+      activity:
+        type: listening           # playing | streaming | listening | watching | competing
+        name: "your agent"
+
+    # --- Reliability -------------------------------------------------
+    eventQueue:
+      listenerTimeout: 15000      # ms
+    inboundWorker:
+      runTimeoutMs: 1800000       # 30 minutes
+
+    # --- Session keying ---------------------------------------------
+    # Informational — actual keys are derived by the gateway using
+    # this agent id. Format per docs:
+    #   DM:           agent:main:main
+    #   Guild chan:   agent:<agentId>:discord:channel:<channelId>
+    #   Slash cmd:    agent:<agentId>:discord:slash:<userId>
+    agentId: ${OPENCLAW_AGENT_ID:-main}

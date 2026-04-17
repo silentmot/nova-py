@@ -1,0 +1,16 @@
+services:
+  nova:
+    build: .
+    image: nova-bot:latest
+    container_name: nova
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      # Persist logs and any cached music metadata.
+      - ./logs:/app/logs
+      - ./cache:/app/cache
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket,sys; sys.exit(0)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3

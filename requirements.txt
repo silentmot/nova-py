@@ -1,0 +1,19 @@
+# Core Discord library — v2.x supports app commands (slash) and modern voice.
+discord.py[voice]>=2.4,<3.0
+
+# Voice requires PyNaCl for encryption; pulled in by [voice] extra but pinned
+# here to stay explicit about the audio-stack dependency.
+PyNaCl>=1.5,<2.0
+
+# YouTube / HTTP audio extraction for the /music cog.
+yt-dlp>=2024.8.6
+
+# Configuration + env loading.
+pydantic>=2.6,<3.0
+pydantic-settings>=2.2,<3.0
+python-dotenv>=1.0,<2.0
+PyYAML>=6.0,<7.0
+
+# HTTP + pretty logging.
+aiohttp>=3.9,<4.0
+rich>=13.7,<14.0
