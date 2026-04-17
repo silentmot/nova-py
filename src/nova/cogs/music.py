@@ -133,6 +133,9 @@ class Music(commands.Cog):
     def __init__(self, bot: NovaBot) -> None:
         self.bot = bot
         self.manager = MusicManager(bot)
+        # Keep strong references to background playback loops so the GC
+        # doesn't collect them mid-track. Tasks self-remove on completion.
+        self._tasks: set[asyncio.Task[None]] = set()
 
     # ------------------------------------------------------------------
     # Top-level /play
@@ -581,7 +584,9 @@ class Music(commands.Cog):
             return
 
         if not vc.is_playing() and not vc.is_paused():
-            asyncio.create_task(self._playback_loop(interaction.guild, vc, player))
+            task = asyncio.create_task(self._playback_loop(interaction.guild, vc, player))
+            self._tasks.add(task)
+            task.add_done_callback(self._tasks.discard)
             await interaction.followup.send(
                 embed=embeds.success(
                     "Now playing",
@@ -619,7 +624,7 @@ class Music(commands.Cog):
                     if not entries:
                         return None
                     info = entries[0]
-                return info
+                return dict(info)
 
         info = await loop.run_in_executor(None, extract)
         if info is None:
@@ -691,7 +696,7 @@ class Music(commands.Cog):
                         break
                     try:
                         vc = await channel.connect(self_deaf=True, reconnect=True)
-                    except (asyncio.TimeoutError, discord.ClientException) as exc:
+                    except (TimeoutError, discord.ClientException) as exc:
                         log.warning("Voice reconnect failed: %s", exc)
                         break
 
@@ -711,10 +716,13 @@ class Music(commands.Cog):
 
                 finished = asyncio.Event()
 
-                def _after(err: BaseException | None) -> None:
+                # Bind `finished` as a default arg so this closure captures
+                # THIS iteration's Event, not whatever the loop var points
+                # to later (ruff B023).
+                def _after(err: BaseException | None, ev: asyncio.Event = finished) -> None:
                     if err is not None:
                         log.warning("FFmpeg playback error: %s", err)
-                    self.bot.loop.call_soon_threadsafe(finished.set)
+                    self.bot.loop.call_soon_threadsafe(ev.set)
 
                 player.mark_play_start(seek_offset=seek_offset)
                 vc.play(source, after=_after)
