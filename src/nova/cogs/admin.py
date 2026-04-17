@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import discord
 from discord import app_commands
@@ -28,7 +28,7 @@ async def _extension_autocomplete(
     current: str,
 ) -> list[app_commands.Choice[str]]:
     """Suggest currently-loaded cog short names for `/admin reload`."""
-    bot = interaction.client  # NovaBot at runtime
+    bot = cast("NovaBot", interaction.client)
     names = sorted(
         ext.removeprefix("nova.cogs.")
         for ext in bot.extensions

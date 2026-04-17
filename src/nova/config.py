@@ -111,7 +111,7 @@ def load_settings() -> Settings:
 
 @lru_cache(maxsize=1)
 def _cached_settings() -> Settings:
-    return Settings()  # type: ignore[call-arg]
+    return Settings()  # type: ignore[call-arg, unused-ignore]
 
 
 def reset_settings_cache() -> None:

@@ -12,8 +12,9 @@ Subclasses `commands.Bot`:
 
 from __future__ import annotations
 
+import contextlib
 import logging
-from typing import Final
+from typing import Any, Final
 
 import aiohttp
 import discord
@@ -151,15 +152,13 @@ class NovaBot(commands.Bot):
         await self.process_commands(message)
 
     async def on_command_error(
-        self, ctx: commands.Context[commands.Bot], error: commands.CommandError
+        self, ctx: commands.Context[Any], error: commands.CommandError
     ) -> None:
         if isinstance(error, commands.CommandNotFound):
             return
         log.exception("Command error in %s: %s", ctx.command, error)
-        try:
+        with contextlib.suppress(discord.HTTPException):
             await ctx.reply(f"Something went wrong: `{error}`", mention_author=False)
-        except discord.HTTPException:
-            pass
 
     async def on_app_command_error(
         self,
