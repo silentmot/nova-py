@@ -117,19 +117,48 @@ gcloud compute ssh $VM_NAME --zone=$ZONE --command="
 
 ---
 
-## 5. Create the production `.env` on the VM
+## 5. Store `.env` in Secret Manager (once)
 
-**Do not `scp` your local `.env`** — the dev values leak. Write a prod
-version in-place:
+Keep secrets out of the VM filesystem and git. This only needs to be
+done once, from your laptop:
 
 ```bash
-gcloud compute ssh $VM_NAME --zone=$ZONE
-# now you're on the VM:
-cd ~/nova
-nano .env
+# Put the complete production .env into a file on your laptop (never commit it).
+# Then upload as a Secret Manager secret:
+gcloud secrets create nova \
+    --project=$PROJECT \
+    --replication-policy=automatic \
+    --data-file=./prod.env
+
+# Later, to update the token or any other value:
+gcloud secrets versions add nova --project=$PROJECT --data-file=./prod.env
 ```
 
-Minimum prod `.env` contents:
+Grant the VM's default service account read access to the secret
+(one-time IAM binding):
+
+```bash
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT --format='value(projectNumber)')
+gcloud secrets add-iam-policy-binding nova \
+    --project=$PROJECT \
+    --member=serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com \
+    --role=roles/secretmanager.secretAccessor
+```
+
+And make sure the VM was created (or updated) with the `cloud-platform`
+scope so the metadata-server token can call Secret Manager:
+
+```bash
+# Only needed if the VM was created with default scopes.
+gcloud compute instances stop $VM_NAME --zone=$ZONE
+gcloud compute instances set-service-account $VM_NAME --zone=$ZONE \
+    --service-account=${PROJECT_NUMBER}-compute@developer.gserviceaccount.com \
+    --scopes=cloud-platform
+gcloud compute instances start $VM_NAME --zone=$ZONE
+```
+
+Minimum prod `.env` contents (paste this into your local `prod.env`
+before running `gcloud secrets create nova ...`):
 
 ```env
 DISCORD_BOT_TOKEN=<your rotated token>
@@ -152,11 +181,21 @@ FFMPEG_PATH=ffmpeg
 MUSIC_MAX_QUEUE=100
 ```
 
-Lock it down:
+### Pulling the secret onto the VM
+
+Use the helper [`deploy/fetch-secret.sh`](deploy/fetch-secret.sh) — it
+uses the GCE metadata server to authenticate, so no credentials ever
+touch the VM's disk beyond the resulting `.env`:
 
 ```bash
-chmod 600 .env
+gcloud compute ssh $VM_NAME --zone=$ZONE
+# on the VM:
+cd ~/nova
+bash deploy/fetch-secret.sh
 ```
+
+The script writes `~/nova/.env` with mode 600 and prints the list of
+keys (not values) it retrieved so you can eyeball it.
 
 ---
 

@@ -28,6 +28,9 @@ else
     echo ">> pulled $(git rev-parse --short HEAD)"
 fi
 
+echo ">> refreshing .env from Secret Manager"
+bash "$SCRIPT_DIR/fetch-secret.sh"
+
 echo ">> building image (cache will make this fast if nothing changed)"
 docker compose build --pull
 
