@@ -112,8 +112,8 @@ def guild_message_requires_mention(message: discord.Message, bot_user_id: int) -
 __all__ = [
     "SessionKey",
     "SessionScope",
-    "session_key_for_interaction",
-    "session_key_for_message",
     "dm_allowed",
     "guild_message_requires_mention",
+    "session_key_for_interaction",
+    "session_key_for_message",
 ]

@@ -49,7 +49,7 @@ def main() -> int:
     except KeyboardInterrupt:
         log.info("Received keyboard interrupt, shutting down.")
         return 0
-    except Exception:  # noqa: BLE001 — top-level crash log
+    except Exception:
         log.exception("Fatal error — the bot is exiting.")
         return 1
     return 0

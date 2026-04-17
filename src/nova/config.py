@@ -120,10 +120,10 @@ def reset_settings_cache() -> None:
 
 
 __all__ = [
-    "Settings",
     "DmPolicy",
     "GroupPolicy",
     "ReplyMode",
+    "Settings",
     "StreamingMode",
     "load_settings",
     "reset_settings_cache",

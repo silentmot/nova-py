@@ -90,7 +90,7 @@ class Admin(commands.GroupCog, name="admin"):
             await self.bot.reload_extension(module)
         except commands.ExtensionNotLoaded:
             await self.bot.load_extension(module)
-        except Exception as exc:  # noqa: BLE001 — report any load error to operator
+        except Exception as exc:
             log.exception("Reload failed")
             await interaction.followup.send(
                 embed=embeds.error("Reload failed", f"`{exc.__class__.__name__}`: {exc}"),
