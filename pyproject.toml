@@ -111,7 +111,14 @@ minversion = "8.0"
 addopts = "-ra --strict-markers --strict-config"
 testpaths = ["tests"]
 asyncio_mode = "auto"
-filterwarnings = ["error"]
+filterwarnings = [
+    # Don't promote warnings to errors wholesale — pytest-asyncio and
+    # other deps occasionally emit deprecations that aren't our problem.
+    "default",
+    # But fail on our own deprecation warnings so we notice them early.
+    "error::DeprecationWarning:nova",
+    "error::DeprecationWarning:tests",
+]
 
 [tool.coverage.run]
 branch = true
