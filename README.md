@@ -82,6 +82,10 @@ Or with Compose:
 docker compose up --build
 ```
 
+## Deploy
+
+Production deployment to a free GCE `e2-micro`: see [`DEPLOY.md`](DEPLOY.md).
+
 ## Invite URL
 
 Replace `<CLIENT_ID>` with your application's client ID. The `applications.commands` scope is
