@@ -131,7 +131,7 @@ class Webhooks(commands.GroupCog, name="webhook"):
         session: aiohttp.ClientSession = self.bot.http_session
         try:
             hook = discord.Webhook.from_url(url, session=session, client=self.bot)
-            await hook.send(content=content, username=username)
+            await hook.send(content=content, username=username or discord.utils.MISSING)
         except (ValueError, discord.NotFound, discord.Forbidden) as exc:
             await interaction.followup.send(
                 embed=embeds.error("Send failed", f"`{exc.__class__.__name__}`"),
