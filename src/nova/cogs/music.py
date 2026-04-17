@@ -349,7 +349,7 @@ class Music(commands.Cog):
             f"⏩ Seeking to `{_fmt_duration(target)}`.", ephemeral=True
         )
 
-    @music_group.command(name="volume", description="Set playback volume (0–200).")
+    @music_group.command(name="volume", description="Set playback volume (0-200).")
     @app_commands.describe(percent="Takes effect on the next track.")
     @guild_only()
     async def volume(
@@ -645,7 +645,7 @@ class Music(commands.Cog):
         """Return up to `limit` search candidates (with webpage URLs only).
 
         Stream URLs are resolved lazily when the user picks a result, so
-        we don't burn 5× the extractor work up front.
+        we don't burn 5x the extractor work up front.
         """
         loop = asyncio.get_running_loop()
         search_opts = {**_YTDL_SEARCH_OPTS}
