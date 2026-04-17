@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+from pydantic import ValidationError
 
 from nova.config import Settings
 
@@ -22,7 +23,7 @@ def test_is_owner_predicate(settings: Settings) -> None:
 
 def test_missing_token_raises(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("DISCORD_BOT_TOKEN", raising=False)
-    with pytest.raises(Exception):  # pydantic ValidationError
+    with pytest.raises(ValidationError):
         Settings(_env_file=None)  # type: ignore[call-arg]
 
 

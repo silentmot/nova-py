@@ -27,5 +27,5 @@ def settings_env(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
-def settings(settings_env: None) -> Settings:  # noqa: ARG001 — fixture wiring
+def settings(settings_env: None) -> Settings:
     return Settings()  # type: ignore[call-arg]
