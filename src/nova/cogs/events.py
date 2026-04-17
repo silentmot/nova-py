@@ -7,7 +7,7 @@ can create, list and cancel events via slash commands.
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 import discord
@@ -69,7 +69,7 @@ class Events(commands.GroupCog, name="event"):
                 ephemeral=True,
             )
             return
-        if start < datetime.now(tz=timezone.utc) + timedelta(minutes=1):
+        if start < datetime.now(tz=UTC) + timedelta(minutes=1):
             await interaction.response.send_message(
                 "Start time must be in the future.", ephemeral=True
             )
@@ -182,7 +182,7 @@ def _parse_datetime(raw: str) -> datetime | None:
         except ValueError:
             continue
         if parsed.tzinfo is None:
-            parsed = parsed.replace(tzinfo=timezone.utc)
+            parsed = parsed.replace(tzinfo=UTC)
         return parsed
     return None
 

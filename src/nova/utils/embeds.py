@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import discord
 
@@ -28,5 +28,5 @@ def _embed(title: str, description: str | None, *, color: discord.Color) -> disc
         title=title,
         description=description,
         color=color,
-        timestamp=datetime.now(tz=timezone.utc),
+        timestamp=datetime.now(tz=UTC),
     )
