@@ -24,7 +24,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import discord
 import yt_dlp
@@ -33,7 +33,7 @@ from discord.ext import commands
 
 from nova.utils import embeds
 from nova.utils.checks import guild_only
-from nova.utils.music_queue import GuildPlayer, LoopMode, MusicManager, Track
+from nova.utils.music_queue import GuildPlayer, MusicManager, Track
 
 if TYPE_CHECKING:
     from nova.bot import NovaBot
@@ -109,7 +109,8 @@ class _SearchSelect(discord.ui.Select["_SearchView"]):
         # Disable the select after use.
         if self.view is not None:
             for child in self.view.children:
-                child.disabled = True  # type: ignore[attr-defined]
+                if isinstance(child, (discord.ui.Button, discord.ui.Select)):
+                    child.disabled = True
             await interaction.edit_original_response(view=self.view)
 
 
@@ -310,7 +311,7 @@ class Music(commands.Cog):
     ) -> None:
         assert interaction.guild is not None
         player = self.manager.player_for(interaction.guild)
-        player.loop_mode = mode.value  # type: ignore[assignment]
+        player.loop_mode = cast(Literal["off", "track", "queue"], mode.value)
         await interaction.response.send_message(
             f"🔁 Loop mode: `{player.loop_mode}`", ephemeral=True
         )
